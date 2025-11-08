@@ -1,7 +1,9 @@
 import javax.sound.sampled.*;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MusicPlayer {
@@ -13,10 +15,16 @@ public class MusicPlayer {
     private final UIInformation info;
     private File currentFile;
     private String pausedTimeText = "";
+    private boolean repeatMode = false;
+    private boolean shuffleMode = false; // ✅ NUEVO: modo aleatorio
 
     //Fila, playlist base
     private List <File> playlist;
     private  int currentIndex = 0;
+
+    //✅ NUEVO: Para guardar el orden original cuando se active shuffle
+    private List<File> originalPlaylistOrder;
+    private int originalCurrentIndex;
 
     //Constructor
     public MusicPlayer(UIInformation info){
@@ -106,6 +114,72 @@ public class MusicPlayer {
         return pausedTimeText;
     }
 
+    public boolean isRepeatMode(){
+        return repeatMode;
+    }
+
+    public void setRepeatMode(boolean repeatMode){
+        this.repeatMode = repeatMode;
+    }
+
+    public void toggleRepeatMode(){
+        this.repeatMode = !this.repeatMode;
+    }
+
+    // ✅ NUEVO: Getters y setters para shuffle mode
+    public boolean isShuffleMode() {
+        return shuffleMode;
+    }
+
+    public void setShuffleMode(boolean shuffleMode) {
+        this.shuffleMode = shuffleMode;
+    }
+
+    public void toggleShuffleMode() {
+        this.shuffleMode = !this.shuffleMode;
+
+        if (shuffleMode) {
+            // Al activar shuffle: guardar orden actual
+            originalPlaylistOrder = new ArrayList<>(playlist);
+            originalCurrentIndex = currentIndex;
+
+            // Mezclar la playlist (excepto la canción actual)
+            if (playlist.size() > 1) {
+                List<File> remainingSongs = new ArrayList<>();
+                File currentSong = playlist.get(currentIndex);
+
+                // Separar la canción actual del resto
+                for (int i = 0; i < playlist.size(); i++) {
+                    if (i != currentIndex) {
+                        remainingSongs.add(playlist.get(i));
+                    }
+                }
+
+                // Mezclar las demás canciones
+                Collections.shuffle(remainingSongs);
+
+                // Reconstruir playlist: canción actual + resto mezclado
+                playlist.clear();
+                playlist.add(currentSong);
+                playlist.addAll(remainingSongs);
+                currentIndex = 0; // La canción actual queda en posición 0
+            }
+        } else {
+            // Al desactivar shuffle: restaurar orden original
+            if (originalPlaylistOrder != null && !originalPlaylistOrder.isEmpty()) {
+                playlist.clear();
+                playlist.addAll(originalPlaylistOrder);
+
+                // Encontrar la posición de la canción actual en el orden original
+                File currentSong = getCurrentFile();
+                if (currentSong != null) {
+                    currentIndex = playlist.indexOf(currentSong);
+                    if (currentIndex == -1) currentIndex = originalCurrentIndex;
+                }
+            }
+        }
+    }
+
     //Cargar cancion especifica
     public  void load(File audioFile){
         if (audioFile == null) {
@@ -149,10 +223,10 @@ public class MusicPlayer {
 
                     long clipLength = clip.getMicrosecondLength();
                     long currentPos = clip.getMicrosecondPosition();
-                    boolean finished = Math.abs(clipLength - currentPos) < 10_000;
+                    boolean finished = Math.abs(clipLength - currentPos) < 1_000_000; // 1 segundo
 
                     if (!paused && finished) {
-                        next();
+                        SwingUtilities.invokeLater(() -> next());
                     }
                 }
             });
@@ -342,6 +416,10 @@ public class MusicPlayer {
         playlist.clear();
         currentIndex = 0;
         currentFile = null;
+        // ✅ NUEVO: Limpiar también el orden original
+        if (originalPlaylistOrder != null) {
+            originalPlaylistOrder.clear();
+        }
 
         info.showSuccess(
                 "Playlist eliminada",
@@ -360,13 +438,30 @@ public class MusicPlayer {
             return;
         }
 
-        currentIndex++;
+        // ✅ ACTUALIZADO: Lógica de shuffle
+        if (shuffleMode) {
+            // Modo aleatorio: seleccionar canción random
+            if (playlist.size() > 1) {
+                int randomIndex;
+                do {
+                    randomIndex = (int) (Math.random() * playlist.size());
+                } while (randomIndex == currentIndex && playlist.size() > 1);
 
+                currentIndex = randomIndex;
+            } else {
+                currentIndex = 0;
+            }
+        }
+        else if (repeatMode) {
+            currentIndex = (currentIndex + 1) % playlist.size();
+        } else {
+            currentIndex++;
 
-        if (currentIndex >= playlist.size()){
-            stop();
-            currentIndex = playlist.size() - 1;
-            return;
+            if (currentIndex >= playlist.size()){
+                stop();
+                currentIndex = Math.max(0, playlist.size() - 1);
+                return;
+            }
         }
 
         if (queuedCount > 0) {
