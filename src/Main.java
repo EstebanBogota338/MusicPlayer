@@ -24,7 +24,6 @@ public class Main {
         List<File> songFiles = new ArrayList<>();
 
         //Filtramos solo los archivos .wav
-
         File [] files = tracksFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".wav"));
 
         if (files == null || files.length == 0){
@@ -73,7 +72,6 @@ public class Main {
 
             // Cerrar ventana
             loadingWindow.close();
-
             info.showSuccess(
                     "Carga completada!",
                     "Se cargaron " + songFiles.size() + " canciones",
@@ -81,7 +79,6 @@ public class Main {
             );
 
             //Mostrar el menú
-
             SwingUtilities.invokeLater(() -> {
                 new UIMusicPlayer(songFiles, info).setVisible(true);
             });

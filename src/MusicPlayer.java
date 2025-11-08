@@ -16,13 +16,12 @@ public class MusicPlayer {
     private File currentFile;
     private String pausedTimeText = "";
     private boolean repeatMode = false;
-    private boolean shuffleMode = false; // ✅ NUEVO: modo aleatorio
+    private boolean shuffleMode = false;
 
     //Fila, playlist base
     private List <File> playlist;
     private  int currentIndex = 0;
 
-    //✅ NUEVO: Para guardar el orden original cuando se active shuffle
     private List<File> originalPlaylistOrder;
     private int originalCurrentIndex;
 
@@ -83,56 +82,6 @@ public class MusicPlayer {
         long minutes = totalSeconds / 60;
         long seconds = totalSeconds % 60;
         return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    public String getCurrentTimeFormatted(){
-        return formatTime(getCurrentTime());
-    }
-
-    public String getTotalTimeFormatted(){
-        return formatTime(getTotalTime());
-    }
-
-    //Getters
-    public File getCurrentFile() {
-        return currentFile;
-    }
-
-    public int getCurrentIndex() {
-        return currentIndex;
-    }
-
-    public int getQueuedCount() {
-        return queuedCount;
-    }
-
-    public List<File> getPlaylist() {
-        return playlist;
-    }
-
-    public String getPausedTimeText() {
-        return pausedTimeText;
-    }
-
-    public boolean isRepeatMode(){
-        return repeatMode;
-    }
-
-    public void setRepeatMode(boolean repeatMode){
-        this.repeatMode = repeatMode;
-    }
-
-    public void toggleRepeatMode(){
-        this.repeatMode = !this.repeatMode;
-    }
-
-    // ✅ NUEVO: Getters y setters para shuffle mode
-    public boolean isShuffleMode() {
-        return shuffleMode;
-    }
-
-    public void setShuffleMode(boolean shuffleMode) {
-        this.shuffleMode = shuffleMode;
     }
 
     public void toggleShuffleMode() {
@@ -201,7 +150,6 @@ public class MusicPlayer {
         }
 
         try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile)) {
-
             if (clip != null && clip.isOpen()){
                 clip.close();
                 clip = null;
@@ -252,7 +200,6 @@ public class MusicPlayer {
         }
     }
 
-    //Bugs en play, la cancion no suena si no se agrega a playlist y no se reaunda despues de pausar
     public void play(){
         if (clip == null){
             info.showException(
@@ -416,7 +363,6 @@ public class MusicPlayer {
         playlist.clear();
         currentIndex = 0;
         currentFile = null;
-        // ✅ NUEVO: Limpiar también el orden original
         if (originalPlaylistOrder != null) {
             originalPlaylistOrder.clear();
         }
@@ -438,7 +384,6 @@ public class MusicPlayer {
             return;
         }
 
-        // ✅ ACTUALIZADO: Lógica de shuffle
         if (shuffleMode) {
             // Modo aleatorio: seleccionar canción random
             if (playlist.size() > 1) {
@@ -516,5 +461,46 @@ public class MusicPlayer {
             clip = null;
             currentFile = null;
         }
+    }
+    //Getters
+    public File getCurrentFile() {
+        return currentFile;
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
+
+    public int getQueuedCount() {
+        return queuedCount;
+    }
+
+    public List<File> getPlaylist() {
+        return playlist;
+    }
+
+    public String getPausedTimeText() {
+        return pausedTimeText;
+    }
+
+    public boolean isRepeatMode(){
+        return repeatMode;
+    }
+
+    public String getCurrentTimeFormatted(){
+        return formatTime(getCurrentTime());
+    }
+
+    public String getTotalTimeFormatted(){
+        return formatTime(getTotalTime());
+    }
+
+    public boolean isShuffleMode() {
+        return shuffleMode;
+    }
+
+    // Setters
+    public void toggleRepeatMode(){
+        this.repeatMode = !this.repeatMode;
     }
 }

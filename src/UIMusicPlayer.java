@@ -20,10 +20,10 @@ public class UIMusicPlayer extends JFrame {
     private final JSlider progressSlider;
     private boolean isSliderChanging = false;
 
-    // NUEVO: Panel de ondas de audio
+    //Panel de ondas de audio
     private final MusicWavePanel wavePanel;
 
-    // NUEVO: Botones para mantener referencia
+    //Botones para aleatorio y bucle
     private JButton btnRepeat;
     private JButton btnShuffle;
 
@@ -42,7 +42,7 @@ public class UIMusicPlayer extends JFrame {
         this.player = new MusicPlayer(info);
 
         setTitle("🎵 Reproductor de Música");
-        setSize(700, 950); // Un poco más alto para el visualizador
+        setSize(700, 950);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(0, 0));
@@ -210,7 +210,7 @@ public class UIMusicPlayer extends JFrame {
         progressSlider.setAlignmentX(Component.CENTER_ALIGNMENT);
         progressSlider.setOpaque(true);
 
-        // Eventos del slider - VERSIÓN SIMPLIFICADA
+        // Eventos del slider
         progressSlider.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -222,12 +222,10 @@ public class UIMusicPlayer extends JFrame {
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (isSliderChanging && player.getCurrentFile() != null && player.getTotalTime() > 0) {
-                    // Calcular nueva posición basada en el click SOLO cuando se suelta el mouse
                     double percent = (double) e.getX() / progressSlider.getWidth();
                     int newValue = (int) (percent * 100);
                     progressSlider.setValue(Math.max(0, Math.min(100, newValue)));
 
-                    // Adelantar la canción usando el nuevo método setPosition
                     long newPosition = (long) (percent * player.getTotalTime());
                     player.setPosition(newPosition);
                 }
@@ -266,14 +264,13 @@ public class UIMusicPlayer extends JFrame {
         secondaryControlsPanel.setMaximumSize(new Dimension(550, 50));
         secondaryControlsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // ✅ NUEVA POSICIÓN: Shuffle a la izquierda, Restart en el centro, Repeat a la derecha
         btnShuffle = createControlButton("🔀", "Modo aleatorio: DESACTIVADO", TEXT_GRAY, 45);
         JButton btnRestart = createControlButton("🔁", "Reiniciar canción", GOLD, 45);
         btnRepeat = createControlButton("🔂", "Repetir playlist: DESACTIVADO", TEXT_GRAY, 45);
 
-        secondaryControlsPanel.add(btnShuffle);  // ✅ IZQUIERDA
-        secondaryControlsPanel.add(btnRestart);  // ✅ CENTRO (debajo de pausa)
-        secondaryControlsPanel.add(btnRepeat);   // ✅ DERECHA
+        secondaryControlsPanel.add(btnShuffle);
+        secondaryControlsPanel.add(btnRestart);
+        secondaryControlsPanel.add(btnRepeat);
 
         mainPanel.add(secondaryControlsPanel);
         mainPanel.add(Box.createVerticalStrut(20));
@@ -354,7 +351,6 @@ public class UIMusicPlayer extends JFrame {
         playlistScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         playlistScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // Personalizar scrollbar
         JScrollBar verticalScrollBar = playlistScrollPane.getVerticalScrollBar();
         verticalScrollBar.setUnitIncrement(16);
         verticalScrollBar.setPreferredSize(new Dimension(12, 0));
@@ -372,19 +368,27 @@ public class UIMusicPlayer extends JFrame {
         progressTimer.start();
 
         // ========== ACCIONES DE LOS BOTONES ==========
+
         btnPlay.addActionListener(e -> {
             File selected = songs.get(songSelector.getSelectedIndex());
 
             if (player.getCurrentFile() == null || !player.getCurrentFile().equals(selected)) {
                 player.load(selected);
                 updateWindowTitle(selected.getName());
+
+                // ✅ SINCRONIZAR SOLO AL CAMBIAR DE CANCIÓN
+                for (int i = 0; i < songSelector.getItemCount(); i++) {
+                    if (songSelector.getItemAt(i).equals(selected.getName())) {
+                        songSelector.setSelectedIndex(i);
+                        break;
+                    }
+                }
             }
 
             player.play();
             statusLabel.setText("🎵 Reproduciendo: " + selected.getName());
             statusLabel.setForeground(GOLD);
 
-            // Actualizar visualizador
             wavePanel.setPlaying(true);
             wavePanel.setVolume(0.8);
 
@@ -402,7 +406,17 @@ public class UIMusicPlayer extends JFrame {
             }
             statusLabel.setForeground(LIGHT_GOLD);
 
-            // Actualizar visualizador
+            // ✅ SINCRONIZAR AL PAUSAR
+            if (player.getCurrentFile() != null) {
+                String currentSongName = player.getCurrentFile().getName();
+                for (int i = 0; i < songSelector.getItemCount(); i++) {
+                    if (songSelector.getItemAt(i).equals(currentSongName)) {
+                        songSelector.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+
             wavePanel.setPlaying(false);
             wavePanel.setVolume(0.4);
         });
@@ -414,7 +428,6 @@ public class UIMusicPlayer extends JFrame {
             progressSlider.setValue(0);
             timeLabel.setText("⏱️ 00:00 / " + player.getTotalTimeFormatted());
 
-            // Actualizar visualizador
             wavePanel.setPlaying(false);
             wavePanel.setVolume(0.2);
         });
@@ -424,17 +437,14 @@ public class UIMusicPlayer extends JFrame {
             statusLabel.setText("🔁 Reiniciando canción actual...");
             statusLabel.setForeground(GOLD);
 
-            // Actualizar visualizador
             wavePanel.setPlaying(true);
             wavePanel.setVolume(0.8);
         });
 
-        // ✅ ACCIÓN: BOTÓN REPEAT
         btnRepeat.addActionListener(e -> {
             player.toggleRepeatMode();
             boolean isRepeatOn = player.isRepeatMode();
 
-            // Cambiar apariencia del botón según el estado
             if (isRepeatOn) {
                 btnRepeat.setBackground(GOLD);
                 btnRepeat.setForeground(BLACK);
@@ -452,12 +462,10 @@ public class UIMusicPlayer extends JFrame {
             updateRepeatIndicator();
         });
 
-        // ✅ NUEVA ACCIÓN: BOTÓN SHUFFLE
         btnShuffle.addActionListener(e -> {
             player.toggleShuffleMode();
             boolean isShuffleOn = player.isShuffleMode();
 
-            // Cambiar apariencia del botón según el estado
             if (isShuffleOn) {
                 btnShuffle.setBackground(GOLD);
                 btnShuffle.setForeground(BLACK);
@@ -473,7 +481,7 @@ public class UIMusicPlayer extends JFrame {
             }
 
             updateShuffleIndicator();
-            updatePlaylistDisplay(); // Actualizar la visualización de la playlist
+            updatePlaylistDisplay();
         });
 
         btnNext.addActionListener(e -> {
@@ -487,22 +495,25 @@ public class UIMusicPlayer extends JFrame {
                     statusLabel.setForeground(GOLD);
                     updateWindowTitle(current.getName());
 
-                    // Actualizar visualizador
+                    // ✅ SINCRONIZAR SOLO CUANDO CAMBIA LA CANCIÓN
+                    for (int i = 0; i < songSelector.getItemCount(); i++) {
+                        if (songSelector.getItemAt(i).equals(current.getName())) {
+                            songSelector.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+
                     wavePanel.setPlaying(true);
                     wavePanel.setVolume(0.8);
                 } else {
                     statusLabel.setText("⏭ No hay más canciones en la cola");
                     statusLabel.setForeground(TEXT_GRAY);
-
-                    // Actualizar visualizador
                     wavePanel.setPlaying(false);
                     wavePanel.setVolume(0.3);
                 }
             } else {
                 statusLabel.setText("🎵 No hay canción actual");
                 statusLabel.setForeground(TEXT_GRAY);
-
-                // Actualizar visualizador
                 wavePanel.setPlaying(false);
                 wavePanel.setVolume(0.2);
             }
@@ -522,22 +533,24 @@ public class UIMusicPlayer extends JFrame {
                     statusLabel.setForeground(GOLD);
                     updateWindowTitle(current.getName());
 
-                    // Actualizar visualizador
+                    for (int i = 0; i < songSelector.getItemCount(); i++) {
+                        if (songSelector.getItemAt(i).equals(current.getName())) {
+                            songSelector.setSelectedIndex(i);
+                            break;
+                        }
+                    }
+
                     wavePanel.setPlaying(true);
                     wavePanel.setVolume(0.8);
                 } else {
                     statusLabel.setText("⏮ Ya estás en la primera canción");
                     statusLabel.setForeground(TEXT_GRAY);
-
-                    // Actualizar visualizador
                     wavePanel.setPlaying(false);
                     wavePanel.setVolume(0.3);
                 }
             } else {
                 statusLabel.setText("🎵 No hay canción actual");
                 statusLabel.setForeground(TEXT_GRAY);
-
-                // Actualizar visualizador
                 wavePanel.setPlaying(false);
                 wavePanel.setVolume(0.2);
             }
@@ -579,13 +592,11 @@ public class UIMusicPlayer extends JFrame {
                 updatePlaylistDisplay();
                 updateWindowTitle("Sin canción");
 
-                // Actualizar visualizador
                 wavePanel.setPlaying(false);
                 wavePanel.setVolume(0.1);
             }
         });
 
-        // Actualizar playlist inicial
         updatePlaylistDisplay();
     }
 
@@ -614,7 +625,6 @@ public class UIMusicPlayer extends JFrame {
                 btn.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
             }
         });
-
         return btn;
     }
 
@@ -652,7 +662,6 @@ public class UIMusicPlayer extends JFrame {
                 String currentTime = player.getCurrentTimeFormatted();
                 String totalTime = player.getTotalTimeFormatted();
 
-                // ✅ ACTUALIZADO: Mostrar indicadores de repeat y shuffle
                 String timePrefix = "";
                 if (player.isRepeatMode()) timePrefix += "🔂 ";
                 if (player.isShuffleMode()) timePrefix += "🔀 ";
@@ -660,13 +669,11 @@ public class UIMusicPlayer extends JFrame {
 
                 timeLabel.setText(timePrefix + currentTime + " / " + totalTime);
 
-                // Actualizar la barra de progreso (solo si no está siendo modificada por el usuario)
                 if (!isSliderChanging) {
                     int progress = (int) ((double) player.getCurrentTime() / player.getTotalTime() * 100);
                     progressSlider.setValue(progress);
                 }
 
-                // Cambiar color según el estado
                 if (player.isPlaying()) {
                     timeLabel.setForeground(GOLD);
                 } else if (player.isPaused()) {
@@ -674,6 +681,7 @@ public class UIMusicPlayer extends JFrame {
                 } else {
                     timeLabel.setForeground(TEXT_GRAY);
                 }
+
             } else {
                 String timePrefix = "";
                 if (player.isRepeatMode()) timePrefix += "🔂 ";
@@ -686,11 +694,8 @@ public class UIMusicPlayer extends JFrame {
         });
     }
 
-    // ✅ MÉTODO: Actualizar indicador de repeat
     private void updateRepeatIndicator() {
         boolean isRepeatOn = player.isRepeatMode();
-
-        // Actualizar el status label para mostrar el estado de repeat
         String currentText = statusLabel.getText();
 
         if (isRepeatOn && !currentText.contains("🔂")) {
@@ -700,11 +705,8 @@ public class UIMusicPlayer extends JFrame {
         }
     }
 
-    // ✅ NUEVO MÉTODO: Actualizar indicador de shuffle
     private void updateShuffleIndicator() {
         boolean isShuffleOn = player.isShuffleMode();
-
-        // Actualizar el status label para mostrar el estado de shuffle
         String currentText = statusLabel.getText();
 
         if (isShuffleOn && !currentText.contains("🔀")) {
@@ -720,11 +722,9 @@ public class UIMusicPlayer extends JFrame {
         if (currentPlaylist != null && !currentPlaylist.isEmpty()) {
             int currentIndex = player.getCurrentIndex();
 
-            // Buscar la próxima canción (ya sea en cola o en la playlist base)
             if (currentIndex + 1 < currentPlaylist.size()) {
                 File nextSong = currentPlaylist.get(currentIndex + 1);
 
-                // Determinar si es de la cola o de la playlist base
                 if (player.getQueuedCount() > 0 && currentIndex + 1 <= player.getCurrentIndex() + player.getQueuedCount()) {
                     queueLabel.setText("📊 Próxima en cola: " + nextSong.getName());
                 } else {
