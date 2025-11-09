@@ -41,7 +41,7 @@ public class UIMusicPlayer extends JFrame {
         this.info = info;
         this.player = new MusicPlayer(info);
 
-        setTitle("🎵 Reproductor de Música");
+        setTitle("Reproductor de Música");
         setSize(700, 950);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -54,7 +54,7 @@ public class UIMusicPlayer extends JFrame {
         headerPanel.setBackground(DARK_GRAY);
         headerPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
 
-        JLabel titleLabel = new JLabel("🎵 Reproductor de Música");
+        JLabel titleLabel = new JLabel("Reproductor de Música");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
         titleLabel.setForeground(GOLD);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -86,7 +86,7 @@ public class UIMusicPlayer extends JFrame {
         ));
         selectorPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel selectLabel = new JLabel("📁 Biblioteca de Canciones");
+        JLabel selectLabel = new JLabel("Biblioteca de Canciones");
         selectLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         selectLabel.setForeground(GOLD);
         selectLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -122,7 +122,7 @@ public class UIMusicPlayer extends JFrame {
         ));
         statusPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        statusLabel = new JLabel("⏹️ Estado: Selecciona una canción para comenzar");
+        statusLabel = new JLabel("[DETENIDO] Estado: Selecciona una canción para comenzar");
         statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         statusLabel.setForeground(TEXT_WHITE);
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -130,7 +130,7 @@ public class UIMusicPlayer extends JFrame {
 
         statusPanel.add(Box.createVerticalStrut(8));
 
-        timeLabel = new JLabel("⏱️ --:-- / --:--");
+        timeLabel = new JLabel(" --:-- / --:--");
         timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         timeLabel.setForeground(TEXT_GRAY);
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -150,7 +150,7 @@ public class UIMusicPlayer extends JFrame {
         waveContainer.setAlignmentX(Component.CENTER_ALIGNMENT);
         waveContainer.setMaximumSize(new Dimension(600, 140));
 
-        JLabel waveTitle = new JLabel("🎶 Visualizador de Audio");
+        JLabel waveTitle = new JLabel("Visualizador de Audio");
         waveTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
         waveTitle.setForeground(GOLD);
         waveTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -243,11 +243,11 @@ public class UIMusicPlayer extends JFrame {
         mainControlsPanel.setMaximumSize(new Dimension(550, 70));
         mainControlsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnPrevious = createControlButton("⏮", "Canción anterior", GOLD, 50);
-        JButton btnPlay = createControlButton("▶", "Reproducir", GOLD, 55);
-        JButton btnPause = createControlButton("⏸", "Pausar", GOLD, 55);
-        JButton btnStop = createControlButton("⏹", "Detener", GOLD, 55);
-        JButton btnNext = createControlButton("⏭", "Siguiente canción", GOLD, 50);
+        JButton btnPrevious = createControlButton("ANT", "Canción anterior", GOLD, 50);
+        JButton btnPlay = createControlButton("PLAY", "Reproducir", GOLD, 55);
+        JButton btnPause = createControlButton("PAUSE", "Pausar", GOLD, 55);
+        JButton btnStop = createControlButton("STOP", "Detener", GOLD, 55);
+        JButton btnNext = createControlButton("SIG", "Siguiente canción", GOLD, 50);
 
         mainControlsPanel.add(btnPrevious);
         mainControlsPanel.add(btnPlay);
@@ -264,9 +264,9 @@ public class UIMusicPlayer extends JFrame {
         secondaryControlsPanel.setMaximumSize(new Dimension(550, 50));
         secondaryControlsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        btnShuffle = createControlButton("🔀", "Modo aleatorio: DESACTIVADO", TEXT_GRAY, 45);
-        JButton btnRestart = createControlButton("🔁", "Reiniciar canción", GOLD, 45);
-        btnRepeat = createControlButton("🔂", "Repetir playlist: DESACTIVADO", TEXT_GRAY, 45);
+        btnShuffle = createControlButton("RND", "Modo aleatorio: DESACTIVADO", TEXT_GRAY, 45);
+        JButton btnRestart = createControlButton("RST", "Reiniciar canción", GOLD, 45);
+        btnRepeat = createControlButton("RPT", "Repetir playlist: DESACTIVADO", TEXT_GRAY, 45);
 
         secondaryControlsPanel.add(btnShuffle);
         secondaryControlsPanel.add(btnRestart);
@@ -282,10 +282,10 @@ public class UIMusicPlayer extends JFrame {
         managementPanel.setMaximumSize(new Dimension(550, 100));
         managementPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnAddQueue = createButton("➕ Agregar a Cola", GOLD);
-        JButton btnAddPlaylist = createButton("📋 Agregar al Final", GOLD);
-        JButton btnClearQueue = createButton("🗑️ Limpiar Cola", GOLD);
-        JButton btnClearPlaylist = createButton("🗑️ Limpiar Playlist", GOLD);
+        JButton btnAddQueue = createButton("Agregar a Cola", GOLD);
+        JButton btnAddPlaylist = createButton("Agregar al Final", GOLD);
+        JButton btnClearQueue = createButton("Limpiar Cola", GOLD);
+        JButton btnClearPlaylist = createButton("Limpiar Playlist", GOLD);
 
         managementPanel.add(btnAddQueue);
         managementPanel.add(btnAddPlaylist);
@@ -305,7 +305,7 @@ public class UIMusicPlayer extends JFrame {
         ));
         queueInfoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        queueLabel = new JLabel("📊 Próxima: Ninguna");
+        queueLabel = new JLabel("Próxima: Ninguna");
         queueLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         queueLabel.setForeground(GOLD);
         queueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -320,7 +320,7 @@ public class UIMusicPlayer extends JFrame {
         playlistPanel.setBackground(BLACK);
         playlistPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel playlistTitle = new JLabel("🎵 Lista de Reproducción Actual");
+        JLabel playlistTitle = new JLabel("Lista de Reproducción Actual");
         playlistTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         playlistTitle.setForeground(GOLD);
         playlistTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -376,7 +376,7 @@ public class UIMusicPlayer extends JFrame {
                 player.load(selected);
                 updateWindowTitle(selected.getName());
 
-                // ✅ SINCRONIZAR SOLO AL CAMBIAR DE CANCIÓN
+                //SINCRONIZAR SOLO AL CAMBIAR DE CANCIÓN
                 for (int i = 0; i < songSelector.getItemCount(); i++) {
                     if (songSelector.getItemAt(i).equals(selected.getName())) {
                         songSelector.setSelectedIndex(i);
@@ -386,7 +386,7 @@ public class UIMusicPlayer extends JFrame {
             }
 
             player.play();
-            statusLabel.setText("🎵 Reproduciendo: " + selected.getName());
+            statusLabel.setText("Reproduciendo: " + selected.getName());
             statusLabel.setForeground(GOLD);
 
             wavePanel.setPlaying(true);
@@ -400,13 +400,13 @@ public class UIMusicPlayer extends JFrame {
             player.pause();
             String pausedAt = player.getPausedTimeText();
             if (!pausedAt.isEmpty()) {
-                statusLabel.setText("⏸ Pausado en " + pausedAt);
+                statusLabel.setText("[PAUSE] Pausado en " + pausedAt);
             } else {
-                statusLabel.setText("⏸ Pausado");
+                statusLabel.setText("[PAUSE] Pausado");
             }
             statusLabel.setForeground(LIGHT_GOLD);
 
-            // ✅ SINCRONIZAR AL PAUSAR
+            //SINCRONIZAR AL PAUSAR
             if (player.getCurrentFile() != null) {
                 String currentSongName = player.getCurrentFile().getName();
                 for (int i = 0; i < songSelector.getItemCount(); i++) {
@@ -423,10 +423,10 @@ public class UIMusicPlayer extends JFrame {
 
         btnStop.addActionListener(e -> {
             player.stop();
-            statusLabel.setText("⏹ Detenido");
+            statusLabel.setText("Detenido");
             statusLabel.setForeground(TEXT_GRAY);
             progressSlider.setValue(0);
-            timeLabel.setText("⏱️ 00:00 / " + player.getTotalTimeFormatted());
+            timeLabel.setText("00:00 / " + player.getTotalTimeFormatted());
 
             wavePanel.setPlaying(false);
             wavePanel.setVolume(0.2);
@@ -434,7 +434,7 @@ public class UIMusicPlayer extends JFrame {
 
         btnRestart.addActionListener(e -> {
             player.restart();
-            statusLabel.setText("🔁 Reiniciando canción actual...");
+            statusLabel.setText("Reiniciando canción actual...");
             statusLabel.setForeground(GOLD);
 
             wavePanel.setPlaying(true);
@@ -491,11 +491,11 @@ public class UIMusicPlayer extends JFrame {
 
             if (current != null) {
                 if (previous == null || !current.getName().equals(previous.getName())) {
-                    statusLabel.setText("🎵 Reproduciendo: " + current.getName());
+                    statusLabel.setText("Reproduciendo: " + current.getName());
                     statusLabel.setForeground(GOLD);
                     updateWindowTitle(current.getName());
 
-                    // ✅ SINCRONIZAR SOLO CUANDO CAMBIA LA CANCIÓN
+                    //SINCRONIZAR SOLO CUANDO CAMBIA LA CANCIÓN
                     for (int i = 0; i < songSelector.getItemCount(); i++) {
                         if (songSelector.getItemAt(i).equals(current.getName())) {
                             songSelector.setSelectedIndex(i);
@@ -506,13 +506,13 @@ public class UIMusicPlayer extends JFrame {
                     wavePanel.setPlaying(true);
                     wavePanel.setVolume(0.8);
                 } else {
-                    statusLabel.setText("⏭ No hay más canciones en la cola");
+                    statusLabel.setText("No hay más canciones en la cola");
                     statusLabel.setForeground(TEXT_GRAY);
                     wavePanel.setPlaying(false);
                     wavePanel.setVolume(0.3);
                 }
             } else {
-                statusLabel.setText("🎵 No hay canción actual");
+                statusLabel.setText("No hay canción actual");
                 statusLabel.setForeground(TEXT_GRAY);
                 wavePanel.setPlaying(false);
                 wavePanel.setVolume(0.2);
@@ -529,7 +529,7 @@ public class UIMusicPlayer extends JFrame {
 
             if (current != null) {
                 if (previous == null || !current.getName().equals(previous.getName())) {
-                    statusLabel.setText("🎵 Reproduciendo: " + current.getName());
+                    statusLabel.setText("Reproduciendo: " + current.getName());
                     statusLabel.setForeground(GOLD);
                     updateWindowTitle(current.getName());
 
@@ -543,13 +543,13 @@ public class UIMusicPlayer extends JFrame {
                     wavePanel.setPlaying(true);
                     wavePanel.setVolume(0.8);
                 } else {
-                    statusLabel.setText("⏮ Ya estás en la primera canción");
+                    statusLabel.setText("Ya estás en la primera canción");
                     statusLabel.setForeground(TEXT_GRAY);
                     wavePanel.setPlaying(false);
                     wavePanel.setVolume(0.3);
                 }
             } else {
-                statusLabel.setText("🎵 No hay canción actual");
+                statusLabel.setText("No hay canción actual");
                 statusLabel.setForeground(TEXT_GRAY);
                 wavePanel.setPlaying(false);
                 wavePanel.setVolume(0.2);
@@ -586,7 +586,7 @@ public class UIMusicPlayer extends JFrame {
             );
             if (confirm == JOptionPane.YES_OPTION) {
                 player.clearPlaylist();
-                statusLabel.setText("🗑️ Playlist eliminada");
+                statusLabel.setText("Playlist eliminada");
                 statusLabel.setForeground(TEXT_GRAY);
                 updateQueueInfo();
                 updatePlaylistDisplay();
@@ -653,7 +653,7 @@ public class UIMusicPlayer extends JFrame {
     }
 
     private void updateWindowTitle(String songName) {
-        setTitle("🎵 Reproductor de Música - " + songName);
+        setTitle("Reproductor de Música - " + songName);
     }
 
     private void updateTimeDisplay() {
@@ -663,9 +663,9 @@ public class UIMusicPlayer extends JFrame {
                 String totalTime = player.getTotalTimeFormatted();
 
                 String timePrefix = "";
-                if (player.isRepeatMode()) timePrefix += "🔂 ";
-                if (player.isShuffleMode()) timePrefix += "🔀 ";
-                if (timePrefix.isEmpty()) timePrefix = "⏱️ ";
+                if (player.isRepeatMode()) timePrefix += "[R] ";
+                if (player.isShuffleMode()) timePrefix += "[S] ";
+                if (timePrefix.isEmpty()) timePrefix = "TIME: ";
 
                 timeLabel.setText(timePrefix + currentTime + " / " + totalTime);
 
@@ -684,9 +684,9 @@ public class UIMusicPlayer extends JFrame {
 
             } else {
                 String timePrefix = "";
-                if (player.isRepeatMode()) timePrefix += "🔂 ";
-                if (player.isShuffleMode()) timePrefix += "🔀 ";
-                if (timePrefix.isEmpty()) timePrefix = "⏱️ ";
+                if (player.isRepeatMode()) timePrefix += "[R] ";
+                if (player.isShuffleMode()) timePrefix += "[S] ";
+                if (timePrefix.isEmpty()) timePrefix = "Time: ";
                 timeLabel.setText(timePrefix + "--:-- / --:--");
                 timeLabel.setForeground(TEXT_GRAY);
                 progressSlider.setValue(0);
@@ -698,10 +698,10 @@ public class UIMusicPlayer extends JFrame {
         boolean isRepeatOn = player.isRepeatMode();
         String currentText = statusLabel.getText();
 
-        if (isRepeatOn && !currentText.contains("🔂")) {
-            statusLabel.setText("🔂 " + currentText);
-        } else if (!isRepeatOn && currentText.contains("🔂")) {
-            statusLabel.setText(currentText.replace("🔂 ", ""));
+        if (isRepeatOn && !currentText.contains("[R]")) {
+            statusLabel.setText("[R] " + currentText);
+        } else if (!isRepeatOn && currentText.contains("[R]")) {
+            statusLabel.setText(currentText.replace("[R] ", ""));
         }
     }
 
@@ -709,10 +709,10 @@ public class UIMusicPlayer extends JFrame {
         boolean isShuffleOn = player.isShuffleMode();
         String currentText = statusLabel.getText();
 
-        if (isShuffleOn && !currentText.contains("🔀")) {
-            statusLabel.setText("🔀 " + currentText);
-        } else if (!isShuffleOn && currentText.contains("🔀")) {
-            statusLabel.setText(currentText.replace("🔀 ", ""));
+        if (isShuffleOn && !currentText.contains("[S]")) {
+            statusLabel.setText("[S] " + currentText);
+        } else if (!isShuffleOn && currentText.contains("[S]")) {
+            statusLabel.setText(currentText.replace("[S] ", ""));
         }
     }
 
@@ -726,17 +726,17 @@ public class UIMusicPlayer extends JFrame {
                 File nextSong = currentPlaylist.get(currentIndex + 1);
 
                 if (player.getQueuedCount() > 0 && currentIndex + 1 <= player.getCurrentIndex() + player.getQueuedCount()) {
-                    queueLabel.setText("📊 Próxima en cola: " + nextSong.getName());
+                    queueLabel.setText("Próxima en cola: " + nextSong.getName());
                 } else {
-                    queueLabel.setText("📊 Próxima: " + nextSong.getName());
+                    queueLabel.setText("Próxima: " + nextSong.getName());
                 }
                 queueLabel.setForeground(GOLD);
             } else {
-                queueLabel.setText("📊 Próxima: Ninguna");
+                queueLabel.setText("Próxima: Ninguna");
                 queueLabel.setForeground(TEXT_GRAY);
             }
         } else {
-            queueLabel.setText("📊 Próxima: Ninguna");
+            queueLabel.setText("Próxima: Ninguna");
             queueLabel.setForeground(TEXT_GRAY);
         }
         updatePlaylistDisplay();
@@ -754,11 +754,11 @@ public class UIMusicPlayer extends JFrame {
                 File song = currentPlaylist.get(i);
 
                 if (i == player.getCurrentIndex()) {
-                    playlistText.append("▶ ");
+                    playlistText.append(">> ");
                 } else if (i > player.getCurrentIndex() && i <= player.getCurrentIndex() + player.getQueuedCount()) {
-                    playlistText.append("⏭ ");
+                    playlistText.append("-> ");
                 } else {
-                    playlistText.append("• ");
+                    playlistText.append("- ");
                 }
 
                 playlistText.append(String.format("%2d", i + 1))

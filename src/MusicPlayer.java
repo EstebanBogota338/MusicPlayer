@@ -7,21 +7,31 @@ import java.util.Collections;
 import java.util.List;
 
 public class MusicPlayer {
+    //Atributos
+
     private  Clip clip;
+    //Indica si la reproducción está en pausa
     private boolean paused = false;
+    //Microsegundo donde se pausó
     private long pausePosition = 0;
+    //Número de canciones en la cola de reproducción
     private int queuedCount = 0;
+    //Evita eventos duplicados al detener
     private boolean ignoreStopEvent = false;
     private final UIInformation info;
+    // Archivo actual de audio cargado
     private File currentFile;
+    //Formato en segundos para ver donde se pausó
     private String pausedTimeText = "";
     private boolean repeatMode = false;
     private boolean shuffleMode = false;
 
-    //Fila, playlist base
+    //Playlist principal - Lista de archivos de audio disponibles
     private List <File> playlist;
+    // Busca el índice de la canción actual en nuestro ArrayList playlist
     private  int currentIndex = 0;
 
+    //Copia de seguridad de la playlist, usada para restaurar al desactivar modo aleatorio
     private List<File> originalPlaylistOrder;
     private int originalCurrentIndex;
 
@@ -31,21 +41,26 @@ public class MusicPlayer {
         this.playlist = new ArrayList<>();
     }
 
+    // Método para asignar la posición de la canción según la barra de progreso
     public void setPosition(long microseconds) {
         if (clip != null && clip.isOpen()) {
             try {
-                // Solo cambiar posición si es significativamente diferente
+                //Obtenemos la posición actual de reproducción en microsegundos
                 long currentPos = clip.getMicrosecondPosition();
-                if (Math.abs(currentPos - microseconds) > 100000) { // 0.1 segundos de diferencia
+                // Cambiamos si hay diferencia mayor a 0.1 segundos
+                if (Math.abs(currentPos - microseconds) > 100000) {
 
                     boolean wasPlaying = clip.isRunning();
 
+                    //Si se estaba reproduciendo lo detenemos temporalmente
                     if (wasPlaying) {
                         clip.stop();
                     }
 
+                    //Aquí ocurre la magia, cambiamos la posición del clip
                     clip.setMicrosecondPosition(microseconds);
 
+                    //Si estaba pausada, actualizamos la posición de pausa
                     if (paused) {
                         pausePosition = microseconds;
                     }
@@ -63,6 +78,7 @@ public class MusicPlayer {
         }
     }
 
+    // Obtener los segundos actuales, usado para actualizar la interfaz, actualizar la barra de progreso e.t.c
     public long getCurrentTime(){
         if (clip != null && clip.isOpen()){
             return clip.getMicrosecondPosition();
@@ -70,6 +86,7 @@ public class MusicPlayer {
         return 0;
     }
 
+    //Similar a la anterior, pero con el tiempo total en vez del tiempo actual
     public long getTotalTime(){
         if (clip != null && clip.isOpen()){
             return clip.getMicrosecondLength();
@@ -77,6 +94,7 @@ public class MusicPlayer {
         return 0;
     }
 
+    //Ponemos el formato de segundos a minutos y segundos
     public String formatTime(long microseconds){
         long totalSeconds = microseconds / 1_000_000;
         long minutes = totalSeconds / 60;
@@ -84,6 +102,8 @@ public class MusicPlayer {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+
+    //Activar o desactivar modo aleatorio
     public void toggleShuffleMode() {
         this.shuffleMode = !this.shuffleMode;
 
@@ -129,7 +149,7 @@ public class MusicPlayer {
         }
     }
 
-    //Cargar cancion especifica
+    //Carga de archivos
     public  void load(File audioFile){
         if (audioFile == null) {
             info.showException("Archivo no válido",
@@ -137,42 +157,59 @@ public class MusicPlayer {
             return;
         }
 
+        // Si la playlist está vacía inicializamos una nueva
         if (playlist == null){
             playlist = new ArrayList<>();
         }
 
+        // ============ GESTIÓN DE PLAYLIST INTELIGENTE ============
+
+        //Buscamos si el archivo ya existe en la lista
         int idx = playlist.indexOf(audioFile);
+
+        //Si no fue encontrado el archivo, haremos lo siguiente
         if (idx == - 1){
+            //Lo agregamos
             playlist.add(audioFile);
+            //Lo asignamos a la última posición
             currentIndex = playlist.size() - 1;
         }else{
             currentIndex = idx;
         }
 
+        // ============ CARGA DEL AUDIO ============
+
         try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile)) {
+
+            //Libera los recursos anteriores
             if (clip != null && clip.isOpen()){
                 clip.close();
                 clip = null;
             }
 
+            //Crea un nuevo clip y carga el audio
             clip = AudioSystem.getClip();
             clip.open(audioStream);
 
+            //Actualiza el estado
             currentFile = audioFile;
             paused = false;
             pausePosition = 0;
 
+            //Detector automático de fin de canción
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) {
                     if (ignoreStopEvent) {
-                        ignoreStopEvent = false; // limpiar la bandera
+                        ignoreStopEvent = false; // Limpia la bandera para evitar stops duplicados
                         return;
                     }
 
+                    //Verifica si llegó al final (ultimo segundo en este caso)
                     long clipLength = clip.getMicrosecondLength();
                     long currentPos = clip.getMicrosecondPosition();
                     boolean finished = Math.abs(clipLength - currentPos) < 1_000_000; // 1 segundo
 
+                    //Si terminó naturalmente pasa a la siguiente
                     if (!paused && finished) {
                         SwingUtilities.invokeLater(() -> next());
                     }
@@ -188,7 +225,7 @@ public class MusicPlayer {
         } catch (IOException e) {
             info.showException(
                     "Error de lectura",
-                    "Ocurrio un problema al leer el archivo",
+                    "Ocurrió un problema al leer el archivo",
                     "Error del sistema"
             );
         } catch (LineUnavailableException e) {
@@ -200,6 +237,7 @@ public class MusicPlayer {
         }
     }
 
+    //Reproducir o reanudar una canción
     public void play(){
         if (clip == null){
             info.showException(
@@ -214,13 +252,17 @@ public class MusicPlayer {
         }
 
         try {
+            //Bandera de seguridad, indica que el próximo stop debe ser ignorado, así las pausas no se confunden con fin de canción
             ignoreStopEvent = true;
 
+            //Si estaba pausado se reanuda desde donde iba la canción
             if (paused){
                 clip.setMicrosecondPosition(pausePosition);
             }
 
+            //Inicia la canción
             clip.start();
+            //Ya no está en pausa
             paused = false;
 
         }catch (Exception e){
@@ -232,6 +274,7 @@ public class MusicPlayer {
         }
     }
 
+    //Pausar canciones
     public void pause(){
         if (clip == null){
             info.showException(
@@ -241,13 +284,19 @@ public class MusicPlayer {
             return;
         }
 
+        //Solo pausamos si se está reproduciendo algo
         if (clip.isRunning()){
+            //La bandera pasa a true porque el próximo stop es intencional (debido a que pausamos)
             ignoreStopEvent = true;
 
+            //Guardamos la posición donde quedó la pausa
             pausePosition = clip.getMicrosecondPosition();
+            //Detenemos el clip
             clip.stop();
+            // Cambiamos a modo pausado
             paused = true;
 
+            //Formato MM:SS
             long totalSeconds = pausePosition / 1_000_000;
             long minutes = totalSeconds / 60;
             long seconds = totalSeconds % 60;
@@ -256,50 +305,71 @@ public class MusicPlayer {
         }
     }
 
+    //Detener canciones
     public void stop (){
         if (clip == null || !clip.isOpen()){
             return;
         }
 
         if (clip !=null){
+            //Aquí es, false debido a que stop si dispara el evento final de la canción
             ignoreStopEvent = false;
+            //Se detiene la canción
             clip.stop();
+            //La posición de reproducción es 0, o sea el inicio
             clip.setMicrosecondPosition(0);
+            //No pausamos, está detenido realmente
             paused = false;
+            //La posición de pausa es 0 por el mismo motivo
             pausePosition = 0;
         }
     }
 
+    //Reiniciar canción
     public void restart(){
         if (clip == null || !clip.isOpen()){
             return;
         }
 
         if (clip != null){
+            //Aquí es, false debido a que stop si dispara el evento final de la canción
             ignoreStopEvent = false;
+            //Se detiene la canción
             clip.stop();
+            //La posición de reproducción es 0, o sea el inicio
             clip.setMicrosecondPosition(0);
+            //La posición de pausa es 0 por el mismo motivo
             pausePosition = 0;
+            //La canción no se pausa (se reproduce automáticamente de hecho)
             paused = false;
+            //Aquí se reproduce automáticamente
             clip.start();
         }
     }
 
+    //Agregar a la cola (al inicio)
     public void addToQueue(File file){
         if (file == null){
             return;
         }
 
+        //Creamos una nueva playlist si no existe ninguna
         if (playlist == null){
             playlist = new ArrayList<>();
         }
 
+        //Guardamos la posición de la próxima canción
         int insertIndex = currentIndex + 1;
+
+        //Validamos los límites
         if (insertIndex > playlist.size()){
+            //Si excede ponemos al final
             insertIndex = playlist.size();
         }
 
+        //Método add para agregar el archivo a la queue en la posición calculada
         playlist.add(insertIndex, file);
+        //Llevamos la cuenta de cuantas canciones hay en la cola
         queuedCount++;
 
         info.showSuccess(
@@ -309,14 +379,18 @@ public class MusicPlayer {
         );
     }
 
+    //Agregar a la pila (al final)
     public  void addToPlaylist(File file){
         if (file == null){
             return;
         }
 
+        //Creamos una playlist si no hay ninguna
         if (playlist == null){
             playlist = new ArrayList<>();
         }
+
+        //Agregamos al final
         playlist.add(file);
 
         info.showSuccess(
@@ -326,6 +400,7 @@ public class MusicPlayer {
         );
     }
 
+    //Eliminar siguiente canción
     public void clearQueue() {
         if (queuedCount <= 0 || playlist == null) {
             info.showException(
@@ -336,8 +411,11 @@ public class MusicPlayer {
             return;
         }
 
+        //Calculamos la posición de la siguiente canción a eliminar
         int removeIndex = currentIndex + 1;
+        //verificamos que el índice esté dentro de los límites
         if (removeIndex < playlist.size()){
+            //Removemos el archivo que se encuentre en el índice calculado y decrementamos la cantidad de canciones en la cola
             File removed = playlist.remove(removeIndex);
             queuedCount--;
 
@@ -349,6 +427,7 @@ public class MusicPlayer {
         }
     }
 
+    //Eliminar toda la playlist
     public void clearPlaylist(){
         if (playlist == null || playlist.isEmpty()){
             info.showException(
@@ -358,11 +437,18 @@ public class MusicPlayer {
             return;
         }
 
+        //Primero que todo se detiene el clip
         stop();
+        //Cerramos el clip
         close();
+        //Quitamos todos los elementos de la playlist
         playlist.clear();
+        //Asignamos current index a 0 porque no hay elementos
         currentIndex = 0;
+        //El archivo actual es nulo por la misma razón
         currentFile = null;
+
+        //Si la copia de seguridad no está vacía la limpiamos también
         if (originalPlaylistOrder != null) {
             originalPlaylistOrder.clear();
         }
@@ -374,6 +460,7 @@ public class MusicPlayer {
         );
     }
 
+    //Pasar a la siguiente canción
     public void next(){
 
         if (playlist == null || playlist.isEmpty()){
@@ -384,41 +471,58 @@ public class MusicPlayer {
             return;
         }
 
+        //Primer caso, modo aleatorio activado
         if (shuffleMode) {
             // Modo aleatorio: seleccionar canción random
             if (playlist.size() > 1) {
+                //Variable para calcular un índice aleatorio
                 int randomIndex;
                 do {
+                    //Calculamos un índice aleatorio
                     randomIndex = (int) (Math.random() * playlist.size());
+                    //Verificamos que la variable randomIndex no sea mayor a currentIndex ni al tamaño de la playlist
                 } while (randomIndex == currentIndex && playlist.size() > 1);
-
+                //El índice actual se cambia por el índice aleatorio previamente calculado
                 currentIndex = randomIndex;
             } else {
                 currentIndex = 0;
             }
         }
+        //Segundo caso si el modo bucle está activado
         else if (repeatMode) {
+            //Al llegar al final volvemos al inicio, ejemplo si size = 3 y current = 2 (2 + 1) % 3 = 0
             currentIndex = (currentIndex + 1) % playlist.size();
+
+            //Tercer caso flujo normal
         } else {
+            //Avanzamos a la canción con el siguiente índice
             currentIndex++;
 
+            //Sí se llega al final de la lista detener la canción
             if (currentIndex >= playlist.size()){
                 stop();
+                //Mantenemos el último índice válido
                 currentIndex = Math.max(0, playlist.size() - 1);
                 return;
             }
         }
 
+        //Si hay canciones en la cola decrementamos el contador de esta
         if (queuedCount > 0) {
             queuedCount--;
         }
 
+        //Salimos del modo de pausa
         paused = false;
+        //Posición de pausa al inicio
         pausePosition = 0;
+        //Cargamos el archivo de audio del current index
         load(playlist.get(currentIndex));
+        //Reproducimos esa canción cargada previamente
         play();
     }
 
+    //Ir a canción anterior
     public void previous(){
         if (playlist == null || playlist.isEmpty()){
             info.showException(
@@ -428,19 +532,31 @@ public class MusicPlayer {
             return;
         }
 
+        //Caso primera canción, se reproduce nuevamente, pues no hay a donde retroceder
         if (currentIndex <= 0){
+            //Pausado igual a falso
             paused = false;
+            //Posición pausa desde el inicio
             pausePosition = 0;
+            //Cargamos la primera canción
             load(playlist.get(currentIndex));
+            //La reproducimos
             play();
             return;
         }
 
+        //Flujo normal
+
+        //El index actual se decrementa debido a que estamos una canción atrás
         currentIndex--;
 
+        //Pausado igual a falso
         paused = false;
+        //Posición pausa desde el inicio
         pausePosition = 0;
+        //Cargamos la canción con el índice calculado
         load(playlist.get(currentIndex));
+        //Se reproduce la misma
         play();
     }
 
