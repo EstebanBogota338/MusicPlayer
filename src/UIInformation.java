@@ -134,6 +134,64 @@ public class UIInformation {
         showSuccess("Éxito", mensaje, "Operación Exitosa");
     }
 
+    // ========== SELECTOR DE CARPETA ==========
+
+    public String selectMusicFolder(JFrame parent) {
+        // Crear el JFileChooser
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setDialogTitle("Seleccionar Carpeta de Música");
+        fileChooser.setApproveButtonText("Seleccionar");
+        fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+
+        // Personalizar colores del FileChooser
+        customizeFileChooser(fileChooser);
+
+        // Mostrar el diálogo
+        int result = fileChooser.showOpenDialog(parent);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile().getAbsolutePath();
+        }
+
+        return null;
+    }
+
+    private void customizeFileChooser(JFileChooser fileChooser) {
+        // Aplicar tema oscuro al FileChooser
+        UIManager.put("FileChooser.background", BLACK);
+        UIManager.put("Panel.background", BLACK);
+        UIManager.put("Label.foreground", TEXT_WHITE);
+        UIManager.put("Label.background", BLACK);
+        UIManager.put("TextField.background", DARK_GRAY);
+        UIManager.put("TextField.foreground", TEXT_WHITE);
+        UIManager.put("TextField.caretForeground", GOLD);
+        UIManager.put("TextField.selectionBackground", GOLD);
+        UIManager.put("TextField.selectionForeground", BLACK);
+        UIManager.put("ComboBox.background", DARK_GRAY);
+        UIManager.put("ComboBox.foreground", TEXT_WHITE);
+        UIManager.put("ComboBox.selectionBackground", GOLD);
+        UIManager.put("ComboBox.selectionForeground", BLACK);
+        UIManager.put("List.background", DARK_GRAY);
+        UIManager.put("List.foreground", TEXT_WHITE);
+        UIManager.put("List.selectionBackground", GOLD);
+        UIManager.put("List.selectionForeground", BLACK);
+        UIManager.put("Button.background", GOLD);
+        UIManager.put("Button.foreground", BLACK);
+        UIManager.put("Button.font", new Font("Segoe UI", Font.BOLD, 11));
+        UIManager.put("Table.background", DARK_GRAY);
+        UIManager.put("Table.foreground", TEXT_WHITE);
+        UIManager.put("Table.selectionBackground", GOLD);
+        UIManager.put("Table.selectionForeground", BLACK);
+        UIManager.put("TableHeader.background", BLACK);
+        UIManager.put("TableHeader.foreground", GOLD);
+        UIManager.put("ScrollPane.background", BLACK);
+        UIManager.put("Viewport.background", DARK_GRAY);
+
+        // Aplicar cambios
+        SwingUtilities.updateComponentTreeUI(fileChooser);
+    }
+
     // ========== VENTANA DE CARGA ==========
 
     public LoadingDialog createLoadingWindow(JFrame parent) {
