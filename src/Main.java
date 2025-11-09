@@ -9,12 +9,24 @@ public class Main {
         UIInformation info = new UIInformation();
         MusicPlayer player = new MusicPlayer(info);
 
-        File tracksFolder = new File("Tracks");
+    // Abrir selector de carpeta
+        String carpetaSeleccionada = info.selectMusicFolder(null);
+
+        if (carpetaSeleccionada == null) {
+            info.showException(
+                    "Sin Selección",
+                    "No se seleccionó ninguna carpeta de música",
+                    "Operación cancelada"
+            );
+            return;
+        }
+
+        File tracksFolder = new File(carpetaSeleccionada);
 
         if (!tracksFolder.exists() || !tracksFolder.isDirectory()){
             info.showException(
-                    "Carpeta no encontrada",
-                    "No se encontro la carpeta 'Tracks' en el directorio especificado",
+                    "Carpeta no válida",
+                    "La carpeta seleccionada no existe o no es válida",
                     "Error, sistema de archivos"
             );
             return;
