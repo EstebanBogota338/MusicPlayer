@@ -34,6 +34,7 @@ download_tracks(){
 }
 
 run(){
+  echo "Ejecutando Programa..."
   javac -d out src/*.java
   java -cp out Main
 }
