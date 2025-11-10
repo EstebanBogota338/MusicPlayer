@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
 
         UIInformation info = new UIInformation();
-        MusicPlayer player = new MusicPlayer(info);
+        // MusicPlayer player = new MusicPlayer(info);
 
     // Abrir selector de carpeta
         String carpetaSeleccionada = info.selectMusicFolder(null);

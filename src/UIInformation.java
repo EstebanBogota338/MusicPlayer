@@ -137,12 +137,16 @@ public class UIInformation {
     // ========== SELECTOR DE CARPETA ==========
 
     public String selectMusicFolder(JFrame parent) {
+        
         // Crear el JFileChooser
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setDialogTitle("Seleccionar Carpeta de Música");
         fileChooser.setApproveButtonText("Seleccionar");
-        fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+        
+        // Obtener el directorio del proyecto
+        String projectPath = System.getProperty("user.dir");
+        fileChooser.setCurrentDirectory(new java.io.File(projectPath));
 
         // Personalizar colores del FileChooser
         customizeFileChooser(fileChooser);
