@@ -17,7 +17,7 @@ check_java() {
 }
 
 download_tracks(){
-  # Verificar si ya existe la carpeta
+  # Verificar si ya existe la carpeta 
   if [ -d "src/tracks" ]; then
     echo "Carpeta src/tracks ya existe, omitiendo descarga"
     return 0

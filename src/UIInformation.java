@@ -137,6 +137,7 @@ public class UIInformation {
     // ========== SELECTOR DE CARPETA ==========
 
     public String selectMusicFolder(JFrame parent) {
+        
         // Crear el JFileChooser
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
